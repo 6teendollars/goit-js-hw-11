@@ -18,3 +18,37 @@ body {
   max-width: 320px;
   margin-bottom: 16px;
 }
+
+.search-form{
+  display: flex;
+  justify-content: center;
+  
+}
+
+.gallery{
+display: flex;
+padding-top: 10px;
+gap: 10px;
+flex-wrap: wrap;
+    flex-direction: row;
+
+}
+
+.photo-card{
+  border: #7f7f7f solid 1px;
+  width: auto;
+
+}
+.info{
+  display: flex;
+  gap :23px;
+  justify-content: center;
+}
+
+.is-hidden {
+  display: none;
+}
+.load-more{
+  margin:30px 0 30px 30px;
+  padding: 10px;
+}
