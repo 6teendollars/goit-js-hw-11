@@ -7,89 +7,90 @@ const baseUrl = 'https://pixabay.com/api/';
 let currentPage = 1;
 const perPage = 40;
 
-
-
 const refs = {
   form: document.querySelector('#search-form'),
   input: document.querySelector('input[name="searchQuery"]'),
   button: document.querySelector('button'),
   gallery: document.querySelector('.gallery'),
-  loadMoreButton: document.querySelector('.load-more')
+  loadMoreButton: document.querySelector('.load-more'),
 };
 
 refs.loadMoreButton.addEventListener('click', handleLoadMoreClick);
 refs.loadMoreButton.classList.add('is-hidden');
 
-function handleLoadMoreClick() {
+async function handleLoadMoreClick() {
   currentPage += 1;
-  fetchImages();
+  await fetchImages();
 }
 
 refs.form.addEventListener('submit', handleFormSubmit);
 
-function handleFormSubmit(e) {
-    e.preventDefault();
-    currentPage = 1;
-    const searchTerm = refs.input.value;
-    const url = `${baseUrl}?key=${API_KEY}&q=${searchTerm}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=${perPage}`;
-  
-    refs.loadMoreButton.classList.add('is-hidden'); 
-  
-    fetchImages(url);
-  }
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  currentPage = 1;
+  const searchTerm = refs.input.value;
+  const url = `${baseUrl}?key=${API_KEY}&q=${searchTerm}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=${perPage}`;
 
-function fetchImages(url) {
+  refs.loadMoreButton.classList.add('is-hidden');
+
+  await fetchImages(url);
+}
+
+async function fetchImages(url) {
   if (!url) {
-    url = `${baseUrl}?key=${API_KEY}&q=dog&image_type=photo&orientation=horizontal&safesearch=true`;
+    url = `${baseUrl}?key=${API_KEY}&q=dog&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=${perPage}`;
   }
 
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      if (data.hits.length === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      } else {
-        const images = data.hits
-          .map(
-            hit => `
-            <div class="photo-card">
-              <img src="${hit.webformatURL}" alt="${hit.tags}" loading="lazy" />
-              <div class="info">
-                <p class="info-item">
-                  <b>Likes:${hit.likes}</b>
-                </p>
-                <p class="info-item">
-                  <b>Views:${hit.views}</b>
-                </p>
-                <p class="info-item">
-                  <b>Comments:${hit.comments}</b>
-                </p>
-                <p class="info-item">
-                  <b>Downloads:${hit.downloads}</b>
-                </p>
-              </div>
+  try {
+    const response = await axios.get(url);
+    const data = response.data;
+    if (data.hits.length === 0) {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    } else {
+      const images = data.hits
+        .map(
+          hit => `
+          <div class="photo-card">
+            <img src="${hit.webformatURL}" alt="${hit.tags}" loading="lazy" />
+            <div class="info">
+              <p class="info-item">
+                <b>Likes:${hit.likes}</b>
+              </p>
+              <p class="info-item">
+                <b>Views:${hit.views}</b>
+              </p>
+              <p class="info-item">
+                <b>Comments:${hit.comments}</b>
+              </p>
+              <p class="info-item">
+                <b>Downloads:${hit.downloads}</b>
+              </p>
             </div>
-          `
-          )
-          .join('');
+          </div>
+        `
+        )
+        .join('');
 
-        if (currentPage === 1) {
-          refs.gallery.innerHTML = images;
-        } else {
-          refs.gallery.insertAdjacentHTML('beforeend', images);
-        }
-
-        if (data.totalHits > currentPage * perPage) {
-            refs.loadMoreButton.classList.remove('is-hidden'); 
-          } else {
-            refs.loadMoreButton.classList.add('is-hidden')
-            if (currentPage === 1) {
-              Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-            }
-          }
+      if (currentPage === 1) {
+        refs.gallery.innerHTML = images;
+      } else {
+        refs.gallery.insertAdjacentHTML('beforeend', images);
       }
-    })
-    .catch(error => console.log(error));
+
+      if (data.totalHits > currentPage * perPage) {
+        refs.loadMoreButton.classList.remove('is-hidden');
+      } else {
+        refs.loadMoreButton.classList.add('is-hidden');
+        if (currentPage === 1) {
+          Notiflix.Notify.info(
+            "We're sorry, but you've reached the end of search results."
+          );
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
