@@ -39,7 +39,6 @@ async function handleFormSubmit(e) {
 async function fetchImages(url) {
   if (!url) {
     const searchTerm = refs.input.value;
-
     url = `${baseUrl}?key=${API_KEY}&q=${searchTerm}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=${perPage}`;
   }
 
