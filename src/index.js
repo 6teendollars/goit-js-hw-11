@@ -38,7 +38,9 @@ async function handleFormSubmit(e) {
 
 async function fetchImages(url) {
   if (!url) {
-    url = `${baseUrl}?key=${API_KEY}&q=dog&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=${perPage}`;
+    const searchTerm = refs.input.value;
+
+    url = `${baseUrl}?key=${API_KEY}&q=${searchTerm}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=${perPage}`;
   }
 
   try {
